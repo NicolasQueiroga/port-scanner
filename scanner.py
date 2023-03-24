@@ -186,10 +186,10 @@ class Application(tk.Frame):
         # Get the IP address and port range from the user input
         ip_address = self.ip_entry.get()
         # if no port range is specified, use the default
-        try:
-            port_range = self.port_range_entry.get()
-        except AttributeError:
+        if self.port_entry.get() == "":
             port_range = "1-65535"
+        else:
+            port_range = self.port_entry.get()
         
         # Escaneia as portas
         try:
@@ -202,14 +202,16 @@ class Application(tk.Frame):
         # Lista as portas encontradas
         ports = []
         for host in nm.all_hosts():
-            for proto in nm[host].all_protocols():
-                lport = nm[host][proto].keys()
-                for port in lport:
-                    try:
-                        service = well_known_ports[port]
-                    except KeyError:
-                        service = "Unknown"
-                    ports.append((port, service))
+            # if is valid port
+            if "tcp" in nm[host]:
+                for proto in nm[host].all_protocols():
+                    lport = nm[host][proto].keys()
+                    for port in lport:
+                        try:
+                            service = well_known_ports[port]
+                        except KeyError:
+                            service = "Unknown"
+                        ports.append((port, service))
                     
         # create a new table
         self.create_port_table(ports)
